@@ -1,0 +1,65 @@
+
+class Solution {
+    public long minSumSquareDiff(int[] nums1, int[] nums2, int k1, int k2) {
+        long k = (long) k1 + k2;
+        int n = nums1.length;
+
+        int[] diff = new int[n];
+        long sum = 0;
+
+        for (int i = 0; i < n; i++) {
+            diff[i] = Math.abs(nums1[i] - nums2[i]);
+            sum += diff[i];
+        }
+
+        if (sum <= k) {
+            return 0;
+        }
+
+        int left = 0, right = 100000;
+
+        // Find the minimum possible maximum difference
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            long operations = 0;
+
+            for (int d : diff) {
+                if (d > mid) {
+                    operations += d - mid;
+                }
+            }
+
+            if (operations <= k) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        int x = left;
+        long operations = 0;
+
+        // Reduce all differences greater than x to x
+        for (int i = 0; i < n; i++) {
+            if (diff[i] > x) {
+                operations += diff[i] - x;
+                diff[i] = x;
+            }
+        }
+
+        long remaining = k - operations;
+        long ans = 0;
+
+        // Use remaining operations to reduce x to x - 1
+        for (int d : diff) {
+            if (d == x && remaining > 0) {
+                ans += (long) (x - 1) * (x - 1);
+                remaining--;
+            } else {
+                ans += (long) d * d;
+            }
+        }
+
+        return ans;
+    }
+}

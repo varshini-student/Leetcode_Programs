@@ -1,0 +1,61 @@
+import java.util.*;
+
+class Solution {
+    public int maximumSaleItems(int[][] items, int budget) {
+
+        int n = items.length;
+
+        // Count items having each factor
+        int[] freq = new int[n + 1];
+
+        for (int[] item : items) {
+            freq[item[0]]++;
+        }
+
+        // Count how many free items each factor can provide
+        int[] free = new int[n + 1];
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = i; j <= n; j += i) {
+                free[i] += freq[j];
+            }
+            free[i]--;
+        }
+
+        // Find minimum price
+        int minPrice = Integer.MAX_VALUE;
+
+        for (int[] item : items) {
+            minPrice = Math.min(minPrice, item[1]);
+        }
+
+        // Sort items by price
+        Arrays.sort(items, (a, b) -> Integer.compare(a[1], b[1]));
+
+        long ans = 0;
+        long remaining = budget;
+
+        // Buy items that provide one free item per purchase
+        for (int[] item : items) {
+
+            int factor = item[0];
+            int price = item[1];
+
+            if (price > 2L * minPrice) {
+                break;
+            }
+
+            int count = free[factor];
+
+            long buy = Math.min(count, remaining / price);
+
+            ans += buy * 2;
+            remaining -= buy * price;
+        }
+
+        // Buy remaining items at minimum price
+        ans += remaining / minPrice;
+
+        return (int) ans;
+    }
+}
